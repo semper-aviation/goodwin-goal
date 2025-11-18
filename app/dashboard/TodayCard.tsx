@@ -1,24 +1,30 @@
 import { AnimatePresence, motion } from "framer-motion"
+import { CardConfetti } from "../components/CardConfetti"
 
 type TodayHeroProps = {
   todayLegs: number
   todayGoalPercent: number
   DAILY_TARGET: number
+  celebrate?: boolean
 }
 
 export const TodayHeroCard: React.FC<TodayHeroProps> = ({
   todayLegs,
   todayGoalPercent,
   DAILY_TARGET,
+  celebrate = false,
 }) => {
   const clampedPercent = Math.min(todayGoalPercent, 120)
 
   return (
     <motion.div
-      className="rounded-2xl bg-white shadow-sm border border-[var(--gw-grey-200)] px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-6"
+      className="relative rounded-2xl bg-white shadow-sm border border-[var(--gw-grey-200)] px-4 py-4 md:px-6 md:py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
     >
+      {/* 🎉 Confetti only inside this card (works on mobile + desktop) */}
+      <CardConfetti active={celebrate} />
+
       {/* Left: big number */}
       <div className="flex-1 flex flex-col items-start">
         <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--text-medium)]">
@@ -33,13 +39,13 @@ export const TodayHeroCard: React.FC<TodayHeroProps> = ({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 1.05, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="font-mono tabular-nums text-7xl md:text-8xl font-bold text-[var(--text-strong)] leading-none"
+              className="font-mono tabular-nums text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-[var(--text-strong)] leading-none"
             >
               {todayLegs}
             </motion.div>
           </AnimatePresence>
 
-          <span className="pb-1 text-base font-medium text-[var(--text-medium)]">
+          <span className="pb-1 text-sm md:text-base font-medium text-[var(--text-medium)]">
             / {DAILY_TARGET}
           </span>
         </div>
@@ -57,9 +63,9 @@ export const TodayHeroCard: React.FC<TodayHeroProps> = ({
             <span>Progress</span>
             <span>{clampedPercent.toFixed(0)}%</span>
           </div>
-          <div className="h-2.5 w-full rounded-full bg-[var(--gw-grey-100)] overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-[var(--gw-grey-100)] overflow-hidden">
             <div
-              className="h-2.5 rounded-full bg-[var(--gw-primary)] transition-all"
+              className="h-2 rounded-full bg-[var(--gw-primary)] transition-all"
               style={{ width: `${Math.min(clampedPercent, 100)}%` }}
             />
           </div>

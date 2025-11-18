@@ -17,7 +17,6 @@ export const YtdAverageCard: React.FC<YtdAverageCardProps> = ({
   DAILY_TARGET,
   annualPercent,
 }) => {
-  console.log(avgLegs)
   return (
     <motion.div
       className="bg-white rounded-xl shadow-sm border border-[var(--gw-grey-200)] p-4 flex flex-col justify-between"
