@@ -8,7 +8,8 @@ import {
   GameLevel,
   initialSnapshot,
   sampleData,
-} from "./dashboard/sample"
+  simulateNextSnapshot,
+} from "./utils/sample"
 import { CountdownCard } from "./dashboard/CountdownCard"
 import { TodayHeroCard } from "./dashboard/TodayCard"
 import { YtdAverageCard } from "./dashboard/YtdAverageCard"
@@ -24,6 +25,7 @@ const GoalsDashboard: React.FC = () => {
   const [now, setNow] = useState(new Date())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [justIncreasedToday, setJustIncreasedToday] = useState(false)
 
   // Tick every second for countdown
   useEffect(() => {
@@ -32,13 +34,37 @@ const GoalsDashboard: React.FC = () => {
   }, [])
 
   // Single API call on mount
+  // Single API call on mount + simulated realtime updates
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setStats(sampleData)
-      setLoading(false)
-    }, 800) // small fake delay to show loading state
-    return () => clearTimeout(timer)
+    // initial load
+    setStats(sampleData)
+    setLoading(false)
+
+    const intervalId = setInterval(() => {
+      setStats((prev) => {
+        const next = simulateNextSnapshot(prev)
+
+        // If today's legs increased, fire confetti
+        if (next.todayLegs > prev.todayLegs) {
+          setJustIncreasedToday(true)
+        }
+
+        return next
+      })
+    }, 3000) // “API call” every 3s
+
+    return () => clearInterval(intervalId)
   }, [])
+
+  useEffect(() => {
+    if (!justIncreasedToday) return
+
+    const timeoutId = setTimeout(() => {
+      setJustIncreasedToday(false)
+    }, 1500)
+
+    return () => clearTimeout(timeoutId)
+  }, [justIncreasedToday])
 
   const { timeLeftLabel, dayPercent } = useMemo(() => getDayTiming(now), [now])
 
@@ -64,6 +90,7 @@ const GoalsDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[var(--gw-grey-50)]">
       <GoodwinHeader />
+
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-4 bg-[var(--gw-grey-50)]">
         {/* HEADER */}
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -127,6 +154,7 @@ const GoalsDashboard: React.FC = () => {
                   todayLegs={stats.todayLegs}
                   todayGoalPercent={todayGoalPercent}
                   DAILY_TARGET={DAILY_TARGET}
+                  celebrate={justIncreasedToday}
                 />
 
                 <div className="space-y-4">
@@ -169,6 +197,7 @@ const GoalsDashboard: React.FC = () => {
                 aheadOfPace={aheadOfPace}
                 onTrack={onTrack}
                 timeLeftLabel={timeLeftLabel}
+                celebrateToday={justIncreasedToday}
               />
             </div>
           </>
@@ -192,6 +221,7 @@ type MobileProps = {
   aheadOfPace: boolean
   onTrack: boolean
   timeLeftLabel: string
+  celebrateToday: boolean
 }
 
 const MobileDashboard: React.FC<MobileProps> = ({
@@ -204,45 +234,17 @@ const MobileDashboard: React.FC<MobileProps> = ({
   aheadOfPace,
   onTrack,
   timeLeftLabel,
+  celebrateToday,
 }) => {
   return (
     <div className="space-y-3">
       {/* Today */}
-      <motion.div
-        className="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <p className="text-[11px] text-[var(--gw-primary-dark)]/70 uppercase tracking-wide mb-1">
-          Today&apos;s legs
-        </p>
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={stats.todayLegs}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.1, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="text-4xl font-bold text-[var(--gw-primary-dark)]"
-          >
-            {stats.todayLegs}
-          </motion.div>
-        </AnimatePresence>
-        <p className="text-xs text-[var(--gw-primary-dark)]/70 mt-1">
-          of <span className="font-semibold">{DAILY_TARGET}</span> target
-        </p>
-        <div className="w-full mt-3">
-          <div className="h-2 w-full rounded-full bg-[var(--gw-grey-100)] overflow-hidden">
-            <div
-              className="h-2 rounded-full bg-[var(--gw-primary)] transition-all"
-              style={{ width: `${Math.min(todayGoalPercent, 100)}%` }}
-            />
-          </div>
-          <p className="mt-1 text-[11px] text-[var(--gw-primary-dark)]/70 text-center">
-            {todayGoalPercent.toFixed(0)}% of daily goal
-          </p>
-        </div>
-      </motion.div>
+      <TodayHeroCard
+        todayLegs={stats.todayLegs}
+        todayGoalPercent={todayGoalPercent}
+        DAILY_TARGET={DAILY_TARGET}
+        celebrate={celebrateToday}
+      />
 
       {/* Flight level card */}
       <FlightLevelCard gameLevel={gameLevel} avgLegs={avgLegs} />

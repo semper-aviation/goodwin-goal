@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import { formatShortDate, isTodayIso } from "../utils/functions"
-import { DashboardSnapshot } from "./sample"
+import { DashboardSnapshot } from "../utils/sample"
 
 type UpcomingForecastCardProps = {
   upcoming: DashboardSnapshot["upcoming"]

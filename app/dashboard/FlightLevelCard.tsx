@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { GameLevel } from "./sample"
+import { GameLevel } from "../utils/sample"
 
 type FlightLevelCardProps = {
   gameLevel: GameLevel
