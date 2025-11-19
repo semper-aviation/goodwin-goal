@@ -5,19 +5,21 @@ import { DashboardSnapshot } from "../utils/sample"
 type UpcomingForecastCardProps = {
   upcoming: DashboardSnapshot["upcoming"]
   dailyTarget: number
+  compact?: boolean
 }
 
 export const UpcomingForecastCard: React.FC<UpcomingForecastCardProps> = ({
   upcoming,
   dailyTarget,
+  compact = false,
 }) => {
   return (
     <motion.div
-      className="bg-white rounded-xl shadow-sm border border-[var(--gw-grey-200)] p-4 md:p-5"
+      className={`bg-white rounded-xl shadow-sm border border-[var(--gw-grey-200)] ${compact ? 'p-3.5' : 'p-4 md:p-5'}`}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className={`flex items-center justify-between ${compact ? 'mb-2.5' : 'mb-3'}`}>
         <h3 className="text-sm md:text-base font-semibold text-[var(--gw-primary-dark)]">
           Next 7 days
         </h3>
@@ -26,7 +28,7 @@ export const UpcomingForecastCard: React.FC<UpcomingForecastCardProps> = ({
         </p>
       </div>
 
-      <div className="space-y-3">
+      <div className={compact ? 'space-y-2.5' : 'space-y-3'}>
         {upcoming.length === 0 && (
           <p className="text-[12px] md:text-sm text-[var(--gw-primary-dark)]/60">
             No upcoming data yet.
