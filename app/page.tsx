@@ -1,7 +1,7 @@
 "use client"
 
 // GoalsDashboard.tsx
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   DashboardSnapshot,
@@ -26,6 +26,8 @@ const GoalsDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [justIncreasedToday, setJustIncreasedToday] = useState(false)
+  const [isPresentationMode, setIsPresentationMode] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Tick every second for countdown
   useEffect(() => {
@@ -66,6 +68,19 @@ const GoalsDashboard: React.FC = () => {
     return () => clearTimeout(timeoutId)
   }, [justIncreasedToday])
 
+  // Track presentation mode changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsPresentationMode(!!document.fullscreenElement)
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange)
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange)
+    }
+  }, [])
+
   const { timeLeftLabel, dayPercent } = useMemo(() => getDayTiming(now), [now])
 
   const avgLegs = useMemo(
@@ -88,10 +103,21 @@ const GoalsDashboard: React.FC = () => {
   const gameLevel = useMemo(() => getGameLevel(avgLegs), [avgLegs])
 
   return (
-    <div className="min-h-screen bg-[var(--gw-grey-50)]">
-      <GoodwinHeader />
+    <div
+      ref={containerRef}
+      className={`min-h-screen bg-[var(--gw-grey-50)] ${
+        isPresentationMode
+          ? 'h-screen overflow-hidden'
+          : 'overflow-y-auto'
+      }`}
+    >
+      <GoodwinHeader containerRef={containerRef} />
 
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-4 bg-[var(--gw-grey-50)]">
+      <div className={`max-w-6xl mx-auto px-4 bg-[var(--gw-grey-50)] ${
+        isPresentationMode
+          ? 'pt-2 pb-0 space-y-3'
+          : 'py-6 pb-12 space-y-4'
+      }`}>
         {/* HEADER */}
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
@@ -147,9 +173,9 @@ const GoalsDashboard: React.FC = () => {
         {!loading && !error && (
           <>
             {/* DESKTOP LAYOUT */}
-            <div className="hidden md:block space-y-4">
+            <div className={`hidden md:block ${isPresentationMode ? 'space-y-3' : 'space-y-4'}`}>
               {/* TOP GRID */}
-              <div className="grid gap-4 md:[grid-template-columns:2fr_1fr]">
+              <div className={`grid md:[grid-template-columns:2fr_1fr] ${isPresentationMode ? 'gap-3' : 'gap-4'}`}>
                 <TodayHeroCard
                   todayLegs={stats.todayLegs}
                   todayGoalPercent={todayGoalPercent}
@@ -157,7 +183,7 @@ const GoalsDashboard: React.FC = () => {
                   celebrate={justIncreasedToday}
                 />
 
-                <div className="space-y-4">
+                <div className={isPresentationMode ? 'space-y-3' : 'space-y-4'}>
                   <CountdownCard
                     timeLeftLabel={timeLeftLabel}
                     dayPercent={dayPercent}
@@ -182,6 +208,7 @@ const GoalsDashboard: React.FC = () => {
               <UpcomingForecastCard
                 upcoming={stats.upcoming}
                 dailyTarget={DAILY_TARGET}
+                compact={isPresentationMode}
               />
             </div>
 
