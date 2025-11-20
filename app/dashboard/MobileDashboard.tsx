@@ -48,7 +48,8 @@ export const MobileDashboard: React.FC<MobileProps> = ({
     <div className="space-y-3">
       {/* Today */}
       <TodayHeroCard
-        todayLegs={stats.todayLegs}
+        recentlyCompletedLegs={stats.recentlyCompletedLegs}
+        scheduledLegs={stats.scheduledLegs}
         todayGoalPercent={todayGoalPercent}
         DAILY_TARGET={DAILY_TARGET}
         celebrate={celebrateToday}

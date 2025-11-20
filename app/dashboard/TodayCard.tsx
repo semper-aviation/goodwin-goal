@@ -2,14 +2,16 @@ import { AnimatePresence, motion } from "framer-motion"
 import { CardConfetti } from "../components/CardConfetti"
 
 type TodayHeroProps = {
-  todayLegs: number
+  recentlyCompletedLegs: number
+  scheduledLegs: number
   todayGoalPercent: number
   DAILY_TARGET: number
   celebrate?: boolean
 }
 
 export const TodayHeroCard: React.FC<TodayHeroProps> = ({
-  todayLegs,
+  recentlyCompletedLegs,
+  scheduledLegs,
   todayGoalPercent,
   DAILY_TARGET,
   celebrate = false,
@@ -28,20 +30,20 @@ export const TodayHeroCard: React.FC<TodayHeroProps> = ({
       {/* Left: big number */}
       <div className="flex-1 flex flex-col items-start">
         <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--text-medium)]">
-          Today&apos;s legs
+          Recently Completed Legs
         </p>
 
         <div className="mt-3 flex items-end gap-3">
           <AnimatePresence mode="popLayout">
             <motion.div
-              key={todayLegs}
+              key={recentlyCompletedLegs}
               initial={{ scale: 0.8, opacity: 0, y: 8 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 1.05, opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="font-mono tabular-nums text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-[var(--text-strong)] leading-none"
             >
-              {todayLegs}
+              {recentlyCompletedLegs}
             </motion.div>
           </AnimatePresence>
 
@@ -51,7 +53,7 @@ export const TodayHeroCard: React.FC<TodayHeroProps> = ({
         </div>
 
         <p className="mt-2 text-sm text-[var(--text-light)]">
-          Legs completed so far today
+          {scheduledLegs} scheduled leg{scheduledLegs !== 1 ? 's' : ''} today
         </p>
       </div>
 
@@ -76,7 +78,7 @@ export const TodayHeroCard: React.FC<TodayHeroProps> = ({
           <div className="rounded-lg bg-[var(--gw-grey-50)] px-3 py-2">
             <p className="text-[12px] text-[var(--text-light)]">Remaining</p>
             <p className="text-[var(--text-strong)] text-base font-semibold">
-              {Math.max(DAILY_TARGET - todayLegs, 0)} legs
+              {Math.max(DAILY_TARGET - recentlyCompletedLegs, 0)} legs
             </p>
           </div>
 
@@ -84,7 +86,7 @@ export const TodayHeroCard: React.FC<TodayHeroProps> = ({
             <p className="text-[12px] text-[var(--text-medium)]">Status</p>
 
             <p className="text-[var(--text-strong)] text-base font-semibold whitespace-nowrap">
-              {todayLegs >= DAILY_TARGET ? "Goal hit 🎉" : "In progress"}
+              {recentlyCompletedLegs >= DAILY_TARGET ? "Goal hit 🎉" : "In progress"}
             </p>
           </div>
         </div>

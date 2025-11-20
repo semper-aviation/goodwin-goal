@@ -9,14 +9,21 @@ type ProjectedYearEnd = {
   avgLegs: number
 }
 
+type ProjectedMonthEnd = {
+  totalLegs: number
+  avgLegs: number
+}
+
 export type DashboardSnapshot = {
-  todayLegs: number
+  scheduledLegs: number
+  recentlyCompletedLegs: number
   ytdLegs: number
-  daysElapsed: number
-  upcoming: UpcomingDay[]
-  projectedYearEnd: ProjectedYearEnd | null
   mtdLegs: number
+  daysElapsed: number
   daysElapsedMTD: number
+  projectedYearEnd: ProjectedYearEnd | null
+  projectedMonthEnd: ProjectedMonthEnd | null
+  upcoming: UpcomingDay[]
 }
 
 export type GameLevel = {
@@ -28,21 +35,32 @@ export type GameLevel = {
 }
 
 export const initialSnapshot: DashboardSnapshot = {
-  todayLegs: 0,
+  scheduledLegs: 0,
+  recentlyCompletedLegs: 0,
   ytdLegs: 0,
-  daysElapsed: 1,
-  upcoming: [],
-  projectedYearEnd: null,
   mtdLegs: 0,
+  daysElapsed: 1,
   daysElapsedMTD: 1,
+  projectedYearEnd: null,
+  projectedMonthEnd: null,
+  upcoming: [],
 }
 
 export const sampleData: DashboardSnapshot = {
-  mtdLegs: 1,
-  todayLegs: 8,
+  scheduledLegs: 4,
+  recentlyCompletedLegs: 8,
   ytdLegs: 3115,
-  daysElapsedMTD: 24,
+  mtdLegs: 1,
   daysElapsed: 240,
+  daysElapsedMTD: 24,
+  projectedYearEnd: {
+    totalLegs: 4755,
+    avgLegs: 13.03,
+  },
+  projectedMonthEnd: {
+    totalLegs: 300,
+    avgLegs: 12.5,
+  },
   upcoming: [
     {
       date: "2025-02-10",
@@ -80,10 +98,6 @@ export const sampleData: DashboardSnapshot = {
       forecastLegs: 11,
     },
   ],
-  projectedYearEnd: {
-    totalLegs: 4755,
-    avgLegs: 13.03,
-  },
 }
 
 // utils/sample.ts
@@ -93,11 +107,11 @@ const SIM_DAILY_TARGET = 13 // keep in sync with DAILY_TARGET in the dashboard
 export function simulateNextSnapshot(
   prev: DashboardSnapshot
 ): DashboardSnapshot {
-  // 1) Today + YTD
+  // 1) Recently completed legs + YTD
   const shouldIncrementToday = Math.random() < 0.5 // 50% of ticks
   const todayIncrement = shouldIncrementToday ? 1 : 0
 
-  const todayLegs = prev.todayLegs + todayIncrement
+  const recentlyCompletedLegs = prev.recentlyCompletedLegs + todayIncrement
   const ytdLegs = prev.ytdLegs + todayIncrement
 
   // 2) Upcoming 7 days evolution
@@ -147,7 +161,7 @@ export function simulateNextSnapshot(
 
   return {
     ...prev,
-    todayLegs,
+    recentlyCompletedLegs,
     ytdLegs,
     upcoming,
     projectedYearEnd,
