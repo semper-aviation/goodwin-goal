@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Referer: "x-mobile-client",
+          "x-mobile-client": "goals-server",
           "x-api-key": process.env.ADMIN_API_KEY!,
         },
         // Disable caching to ensure fresh data on each request
