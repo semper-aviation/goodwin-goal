@@ -15,6 +15,8 @@ export type DashboardSnapshot = {
   daysElapsed: number
   upcoming: UpcomingDay[]
   projectedYearEnd: ProjectedYearEnd | null
+  mtdLegs: number
+  daysElapsedMTD: number
 }
 
 export type GameLevel = {
@@ -31,11 +33,15 @@ export const initialSnapshot: DashboardSnapshot = {
   daysElapsed: 1,
   upcoming: [],
   projectedYearEnd: null,
+  mtdLegs: 0,
+  daysElapsedMTD: 1,
 }
 
 export const sampleData: DashboardSnapshot = {
+  mtdLegs: 1,
   todayLegs: 8,
   ytdLegs: 3115,
+  daysElapsedMTD: 24,
   daysElapsed: 240,
   upcoming: [
     {

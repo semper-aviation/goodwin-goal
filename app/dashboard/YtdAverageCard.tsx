@@ -19,7 +19,7 @@ export const YtdAverageCard: React.FC<YtdAverageCardProps> = ({
 }) => {
   return (
     <motion.div
-      className="bg-white rounded-xl shadow-sm border border-[var(--gw-grey-200)] p-4 flex flex-col justify-between"
+      className="bg-white rounded-xl shadow-sm border border-[var(--gw-grey-200)] p-3 flex flex-col justify-between"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
     >
