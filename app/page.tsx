@@ -46,9 +46,9 @@ const GoalsDashboard: React.FC = () => {
         }
         const data = await response.json()
 
-        // Check if today's legs increased for confetti
+        // Check if recently completed legs increased for confetti
         setStats((prev) => {
-          if (data.todayLegs > prev.todayLegs) {
+          if (data.recentlyCompletedLegs > prev.recentlyCompletedLegs) {
             setJustIncreasedToday(true)
           }
           return data
@@ -84,7 +84,7 @@ const GoalsDashboard: React.FC = () => {
   //       const next = simulateNextSnapshot(prev)
   //
   //       // If today's legs increased, fire confetti
-  //       if (next.todayLegs > prev.todayLegs) {
+  //       if (next.recentlyCompletedLegs > prev.recentlyCompletedLegs) {
   //         setJustIncreasedToday(true)
   //       }
   //
@@ -126,8 +126,8 @@ const GoalsDashboard: React.FC = () => {
   )
 
   const todayGoalPercent = useMemo(
-    () => Math.min((stats.todayLegs / DAILY_TARGET) * 100, 120),
-    [stats.todayLegs]
+    () => Math.min((stats.recentlyCompletedLegs / DAILY_TARGET) * 100, 120),
+    [stats.recentlyCompletedLegs]
   )
 
   const annualPercent = useMemo(
@@ -254,7 +254,8 @@ const GoalsDashboard: React.FC = () => {
                 }`}
               >
                 <TodayHeroCard
-                  todayLegs={stats.todayLegs}
+                  recentlyCompletedLegs={stats.recentlyCompletedLegs}
+                  scheduledLegs={stats.scheduledLegs}
                   todayGoalPercent={todayGoalPercent}
                   DAILY_TARGET={DAILY_TARGET}
                   celebrate={justIncreasedToday}
