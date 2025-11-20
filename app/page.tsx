@@ -16,9 +16,9 @@ import { YtdAverageCard } from "./dashboard/YtdAverageCard"
 import { FlightLevelCard } from "./dashboard/FlightLevelCard"
 import { UpcomingForecastCard } from "./dashboard/UpcomingForecastCard"
 import { GoodwinHeader } from "./components/GoodwinHeader"
-
-const DAILY_TARGET = 13
-const YEAR_TARGET = DAILY_TARGET * 365
+import { MtdAverageCard } from "./dashboard/MtdAverageCard"
+import { DAILY_TARGET, YEAR_TARGET } from "./utils/functions"
+import { MobileDashboard } from "./dashboard/MobileDashboard"
 
 const GoalsDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardSnapshot>(initialSnapshot)
@@ -27,6 +27,7 @@ const GoalsDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [justIncreasedToday, setJustIncreasedToday] = useState(false)
   const [isPresentationMode, setIsPresentationMode] = useState(false)
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Tick every second for countdown
@@ -35,28 +36,64 @@ const GoalsDashboard: React.FC = () => {
     return () => clearInterval(id)
   }, [])
 
-  // Single API call on mount
-  // Single API call on mount + simulated realtime updates
+  // Real API call with 3s polling (via Next.js API route)
   useEffect(() => {
-    // initial load
-    setStats(sampleData)
-    setLoading(false)
-
-    const intervalId = setInterval(() => {
-      setStats((prev) => {
-        const next = simulateNextSnapshot(prev)
-
-        // If today's legs increased, fire confetti
-        if (next.todayLegs > prev.todayLegs) {
-          setJustIncreasedToday(true)
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/goal")
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
+        const data = await response.json()
 
-        return next
-      })
-    }, 3000) // “API call” every 3s
+        // Check if today's legs increased for confetti
+        setStats((prev) => {
+          if (data.todayLegs > prev.todayLegs) {
+            setJustIncreasedToday(true)
+          }
+          return data
+        })
+
+        setLastRefreshed(new Date())
+        setLoading(false)
+        setError(null)
+      } catch (err) {
+        console.error("Error fetching goal data:", err)
+        setError("Failed to load dashboard data")
+        setLoading(false)
+      }
+    }
+
+    // Initial fetch
+    fetchData()
+
+    // Poll every 3 minutes
+    const intervalId = setInterval(fetchData, 180000)
 
     return () => clearInterval(intervalId)
   }, [])
+
+  // --- COMMENTED OUT: Simulated API call for local testing ---
+  // useEffect(() => {
+  //   // initial load
+  //   setStats(sampleData)
+  //   setLoading(false)
+  //
+  //   const intervalId = setInterval(() => {
+  //     setStats((prev) => {
+  //       const next = simulateNextSnapshot(prev)
+  //
+  //       // If today's legs increased, fire confetti
+  //       if (next.todayLegs > prev.todayLegs) {
+  //         setJustIncreasedToday(true)
+  //       }
+  //
+  //       return next
+  //     })
+  //   }, 3000) // "API call" every 3s
+  //
+  //   return () => clearInterval(intervalId)
+  // }, [])
 
   useEffect(() => {
     if (!justIncreasedToday) return
@@ -98,6 +135,29 @@ const GoalsDashboard: React.FC = () => {
     [stats.ytdLegs]
   )
 
+  // Days in current month
+  const daysInMonth = useMemo(() => {
+    const d = now
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
+  }, [now])
+
+  // Month target = DAILY_TARGET * daysInMonth
+  const MONTH_TARGET = useMemo(() => DAILY_TARGET * daysInMonth, [daysInMonth])
+
+  // MTD average legs / day
+  const avgLegsMTD = useMemo(
+    () => (stats.daysElapsedMTD > 0 ? stats.mtdLegs / stats.daysElapsedMTD : 0),
+    [stats.mtdLegs, stats.daysElapsedMTD]
+  )
+
+  // MTD progress vs month target
+  const mtdPercent = useMemo(
+    () => Math.min((stats.mtdLegs / MONTH_TARGET) * 100, 120),
+    [stats.mtdLegs, MONTH_TARGET]
+  )
+
+  const onTrackMTD = avgLegsMTD >= DAILY_TARGET
+
   const aheadOfPace = todayGoalPercent > dayPercent
   const onTrack = avgLegs >= DAILY_TARGET
   const gameLevel = useMemo(() => getGameLevel(avgLegs), [avgLegs])
@@ -106,18 +166,27 @@ const GoalsDashboard: React.FC = () => {
     <div
       ref={containerRef}
       className={`min-h-screen bg-[var(--gw-grey-50)] ${
-        isPresentationMode
-          ? 'h-screen overflow-hidden'
-          : 'overflow-y-auto'
+        isPresentationMode ? "h-screen overflow-hidden" : "overflow-y-auto"
       }`}
     >
       <GoodwinHeader containerRef={containerRef} />
 
-      <div className={`max-w-6xl mx-auto px-4 bg-[var(--gw-grey-50)] ${
-        isPresentationMode
-          ? 'pt-2 pb-0 space-y-3'
-          : 'py-6 pb-12 space-y-4'
-      }`}>
+      <div
+        className={`max-w-6xl mx-auto px-4 bg-[var(--gw-grey-50)] ${
+          isPresentationMode ? "pt-2 pb-0 space-y-3" : "py-6 pb-12 space-y-4"
+        }`}
+      >
+        {/* Refreshed timestamp */}
+        {lastRefreshed && (
+          <div
+            className={`flex justify-end ${isPresentationMode ? "-mb-2" : ""}`}
+          >
+            <span className="text-xs text-[var(--gw-primary-dark)]/60">
+              Refreshed at: {lastRefreshed.toLocaleTimeString()}
+            </span>
+          </div>
+        )}
+
         {/* HEADER */}
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
@@ -173,9 +242,17 @@ const GoalsDashboard: React.FC = () => {
         {!loading && !error && (
           <>
             {/* DESKTOP LAYOUT */}
-            <div className={`hidden md:block ${isPresentationMode ? 'space-y-3' : 'space-y-4'}`}>
+            <div
+              className={`hidden md:block ${
+                isPresentationMode ? "space-y-3" : "space-y-4"
+              }`}
+            >
               {/* TOP GRID */}
-              <div className={`grid md:[grid-template-columns:2fr_1fr] ${isPresentationMode ? 'gap-3' : 'gap-4'}`}>
+              <div
+                className={`grid md:[grid-template-columns:2fr_1fr] ${
+                  isPresentationMode ? "gap-3" : "gap-4"
+                }`}
+              >
                 <TodayHeroCard
                   todayLegs={stats.todayLegs}
                   todayGoalPercent={todayGoalPercent}
@@ -183,12 +260,22 @@ const GoalsDashboard: React.FC = () => {
                   celebrate={justIncreasedToday}
                 />
 
-                <div className={isPresentationMode ? 'space-y-3' : 'space-y-4'}>
+                <div
+                  className={isPresentationMode ? "space-y-2.5" : "space-y-3"}
+                >
                   <CountdownCard
                     timeLeftLabel={timeLeftLabel}
                     dayPercent={dayPercent}
                     todayGoalPercent={todayGoalPercent}
                     aheadOfPace={aheadOfPace}
+                  />
+                  <MtdAverageCard
+                    avgLegsMTD={avgLegsMTD}
+                    mtdLegs={stats.mtdLegs}
+                    MONTH_TARGET={MONTH_TARGET}
+                    DAILY_TARGET={DAILY_TARGET}
+                    mtdPercent={mtdPercent}
+                    onTrack={onTrackMTD}
                   />
                   <YtdAverageCard
                     avgLegs={avgLegs}
@@ -225,6 +312,12 @@ const GoalsDashboard: React.FC = () => {
                 onTrack={onTrack}
                 timeLeftLabel={timeLeftLabel}
                 celebrateToday={justIncreasedToday}
+                avgLegsMTD={avgLegsMTD}
+                mtdLegs={stats.mtdLegs}
+                MONTH_TARGET={MONTH_TARGET}
+                DAILY_TARGET={DAILY_TARGET}
+                mtdPercent={mtdPercent}
+                onTrackMTD={onTrackMTD}
               />
             </div>
           </>
@@ -237,116 +330,6 @@ const GoalsDashboard: React.FC = () => {
 export default GoalsDashboard
 
 // ---------- MOBILE DASHBOARD ----------
-
-type MobileProps = {
-  stats: DashboardSnapshot
-  avgLegs: number
-  gameLevel: GameLevel
-  dayPercent: number
-  todayGoalPercent: number
-  annualPercent: number
-  aheadOfPace: boolean
-  onTrack: boolean
-  timeLeftLabel: string
-  celebrateToday: boolean
-}
-
-const MobileDashboard: React.FC<MobileProps> = ({
-  stats,
-  avgLegs,
-  gameLevel,
-  dayPercent,
-  todayGoalPercent,
-  annualPercent,
-  aheadOfPace,
-  onTrack,
-  timeLeftLabel,
-  celebrateToday,
-}) => {
-  return (
-    <div className="space-y-3">
-      {/* Today */}
-      <TodayHeroCard
-        todayLegs={stats.todayLegs}
-        todayGoalPercent={todayGoalPercent}
-        DAILY_TARGET={DAILY_TARGET}
-        celebrate={celebrateToday}
-      />
-
-      {/* Flight level card */}
-      <FlightLevelCard gameLevel={gameLevel} avgLegs={avgLegs} />
-
-      {/* Countdown / pace */}
-      <motion.div
-        className="bg-white rounded-xl shadow-sm p-4"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="flex items-center justify-between mb-1">
-          <p className="text-[11px] text-[var(--gw-primary-dark)]/70 uppercase tracking-wide">
-            Time left
-          </p>
-          <span className="text-lg font-semibold tabular-nums text-[var(--gw-primary-dark)]">
-            {timeLeftLabel}
-          </span>
-        </div>
-        <div className="mt-2 space-y-2">
-          <div>
-            <div className="flex justify-between text-[10px] text-[var(--gw-primary-dark)]/70 mb-1">
-              <span>Day elapsed</span>
-              <span>{dayPercent.toFixed(0)}%</span>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-[var(--gw-grey-100)] overflow-hidden">
-              <div
-                className="h-1.5 rounded-full bg-[var(--gw-grey-300)] transition-all"
-                style={{ width: `${dayPercent}%` }}
-              />
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-[10px] text-[var(--gw-primary-dark)]/70 mb-1">
-              <span>Goal progress</span>
-              <span>{todayGoalPercent.toFixed(0)}%</span>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-[var(--gw-grey-100)] overflow-hidden">
-              <div
-                className="h-1.5 rounded-full bg-[var(--gw-primary)] transition-all"
-                style={{ width: `${Math.min(todayGoalPercent, 100)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="mt-2">
-          <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
-              aheadOfPace
-                ? "bg-[var(--gw-primary-light)] text-[var(--gw-primary-dark)]"
-                : "bg-[var(--gw-secondary)]/10 text-[var(--gw-secondary)]"
-            }`}
-          >
-            {aheadOfPace ? "Ahead of pace" : "Behind pace"}
-          </span>
-        </div>
-      </motion.div>
-
-      {/* YTD */}
-      <YtdAverageCard
-        avgLegs={avgLegs}
-        ytdLegs={stats.ytdLegs}
-        YEAR_TARGET={YEAR_TARGET}
-        onTrack={onTrack}
-        DAILY_TARGET={DAILY_TARGET}
-        annualPercent={annualPercent}
-      />
-
-      {/* Upcoming + forecast */}
-      <UpcomingForecastCard
-        upcoming={stats.upcoming}
-        dailyTarget={DAILY_TARGET}
-      />
-    </div>
-  )
-}
 
 // ---------- HELPERS ----------
 

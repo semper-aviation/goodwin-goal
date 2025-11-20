@@ -15,7 +15,7 @@ export const CountdownCard: React.FC<CountdownCardProps> = ({
 }) => {
   return (
     <motion.div
-      className="bg-white rounded-xl shadow-sm border border-[var(--gw-grey-200)] p-4"
+      className="bg-white rounded-xl shadow-sm border border-[var(--gw-grey-200)] p-3"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
     >
