@@ -30,7 +30,7 @@ export const TodayHeroCard: React.FC<TodayHeroProps> = ({
       {/* Left: big number */}
       <div className="flex-1 flex flex-col items-start">
         <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--text-medium)]">
-          Recently Completed Legs
+          Yesterday's Completed Legs
         </p>
 
         <div className="mt-3 flex items-end gap-3">
