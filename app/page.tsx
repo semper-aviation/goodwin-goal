@@ -29,6 +29,7 @@ const GoalsDashboard: React.FC = () => {
   const [isPresentationMode, setIsPresentationMode] = useState(false)
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const isInitialLoad = useRef(true)
 
   // Tick every second for countdown
   useEffect(() => {
@@ -48,11 +49,12 @@ const GoalsDashboard: React.FC = () => {
         }
         const data = await response.json()
 
-        // Check if recently completed legs increased for confetti
+        // Check if recently completed legs increased for confetti (skip on initial load)
         setStats((prev) => {
-          if (data.recentlyCompletedLegs > prev.recentlyCompletedLegs) {
+          if (!isInitialLoad.current && data.recentlyCompletedLegs > prev.recentlyCompletedLegs) {
             setJustIncreasedToday(true)
           }
+          isInitialLoad.current = false
           return data
         })
 
