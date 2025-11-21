@@ -36,8 +36,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Get timezone from query parameter
+    const { searchParams } = new URL(request.url)
+    const timezone = searchParams.get("timezone") || "America/New_York"
+
     const response = await fetch(
-      `${process.env.GOODWIN_BASE_URL}admin/goodwin/goal`,
+      `${process.env.GOODWIN_BASE_URL}admin/goodwin/goal?timezone=${encodeURIComponent(timezone)}`,
       {
         method: "GET",
         headers: {

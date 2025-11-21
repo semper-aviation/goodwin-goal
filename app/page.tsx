@@ -40,7 +40,9 @@ const GoalsDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/goal")
+        // Get user's timezone
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const response = await fetch(`/api/goal?timezone=${encodeURIComponent(timezone)}`)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
@@ -176,13 +178,20 @@ const GoalsDashboard: React.FC = () => {
           isPresentationMode ? "pt-2 pb-0 space-y-3" : "py-6 pb-12 space-y-4"
         }`}
       >
-        {/* Refreshed timestamp */}
+        {/* As of timestamp */}
         {lastRefreshed && (
           <div
             className={`flex justify-end ${isPresentationMode ? "-mb-2" : ""}`}
           >
             <span className="text-xs text-[var(--gw-primary-dark)]/60">
-              Refreshed at: {lastRefreshed.toLocaleTimeString()}
+              As of: {lastRefreshed.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                timeZoneName: 'short'
+              })}
             </span>
           </div>
         )}
