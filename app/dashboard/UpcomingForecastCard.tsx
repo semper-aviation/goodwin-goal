@@ -50,9 +50,11 @@ export const UpcomingForecastCard: React.FC<UpcomingForecastCardProps> = ({
           // bar color logic
           let barColor = "bg-[var(--gw-grey-300)]"
           if (hitTarget) {
-            barColor = "bg-emerald-700"
+            barColor = "bg-emerald-700" // Hit target: dark green
+          } else if (d.plannedLegs > d.forecastLegs && d.plannedLegs > 0) {
+            barColor = "bg-emerald-500" // Ahead of forecast: lighter green
           } else if (d.plannedLegs < d.forecastLegs) {
-            barColor = "bg-amber-500"
+            barColor = "bg-amber-500" // Behind forecast: amber/orange
           }
 
           return (
