@@ -14,6 +14,14 @@ type ProjectedMonthEnd = {
   avgLegs: number
 }
 
+export type PreviousMonth = {
+  month: string
+  monthNumber: number
+  completedLegs: number
+  daysInMonth: number
+  avgLegsPerDay: number
+}
+
 export type DashboardSnapshot = {
   scheduledLegs: number
   recentlyCompletedLegs: number
@@ -24,6 +32,7 @@ export type DashboardSnapshot = {
   projectedYearEnd: ProjectedYearEnd | null
   projectedMonthEnd: ProjectedMonthEnd | null
   upcoming: UpcomingDay[]
+  previousMonths: PreviousMonth[] | null
 }
 
 export type GameLevel = {
@@ -44,6 +53,7 @@ export const initialSnapshot: DashboardSnapshot = {
   projectedYearEnd: null,
   projectedMonthEnd: null,
   upcoming: [],
+  previousMonths: null,
 }
 
 export const sampleData: DashboardSnapshot = {
@@ -97,6 +107,9 @@ export const sampleData: DashboardSnapshot = {
       plannedLegs: 6,
       forecastLegs: 11,
     },
+  ],
+  previousMonths: [
+    { month: "January", monthNumber: 1, completedLegs: 420, daysInMonth: 31, avgLegsPerDay: 13.55 },
   ],
 }
 

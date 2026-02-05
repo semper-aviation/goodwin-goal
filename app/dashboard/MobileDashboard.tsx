@@ -3,9 +3,10 @@ import { FlightLevelCard } from "./FlightLevelCard"
 import { TodayHeroCard } from "./TodayCard"
 import { UpcomingForecastCard } from "./UpcomingForecastCard"
 import { YtdAverageCard } from "./YtdAverageCard"
-import { DashboardSnapshot, GameLevel } from "../utils/sample"
+import { DashboardSnapshot, GameLevel, PreviousMonth } from "../utils/sample"
 import { DAILY_TARGET, YEAR_TARGET } from "../utils/functions"
 import { MtdAverageCard } from "./MtdAverageCard"
+import { PreviousMonthsChart } from "./PreviousMonthsChart"
 
 type MobileProps = {
   stats: DashboardSnapshot
@@ -24,6 +25,7 @@ type MobileProps = {
   DAILY_TARGET: number
   mtdPercent: number
   onTrackMTD: boolean
+  previousMonths: PreviousMonth[] | null
 }
 
 export const MobileDashboard: React.FC<MobileProps> = ({
@@ -43,6 +45,7 @@ export const MobileDashboard: React.FC<MobileProps> = ({
   DAILY_TARGET,
   mtdPercent,
   onTrackMTD,
+  previousMonths,
 }) => {
   return (
     <div className="space-y-3">
@@ -54,6 +57,9 @@ export const MobileDashboard: React.FC<MobileProps> = ({
         DAILY_TARGET={DAILY_TARGET}
         celebrate={celebrateToday}
       />
+
+      {/* Previous months chart */}
+      <PreviousMonthsChart previousMonths={previousMonths} />
 
       {/* Flight level card */}
       <FlightLevelCard gameLevel={gameLevel} avgLegs={avgLegs} />
