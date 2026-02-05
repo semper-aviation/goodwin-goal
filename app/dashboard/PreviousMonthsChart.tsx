@@ -80,6 +80,11 @@ export const PreviousMonthsChart: React.FC<PreviousMonthsChartProps> = ({
                 {month.month.slice(0, 3)}
               </span>
 
+              {/* Total legs - visible on mobile, hidden on desktop (shown in tooltip) */}
+              <span className="text-[9px] font-semibold text-[var(--gw-primary-dark)] md:hidden">
+                {month.completedLegs}
+              </span>
+
               {/* Avg legs label */}
               <span
                 className={`text-[9px] font-medium ${
