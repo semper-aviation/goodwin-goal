@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         },
         // Disable caching to ensure fresh data on each request
         cache: "no-store",
-      }
+      },
     )
     if (!response.ok) {
       throw new Error(`External API error! status: ${response.status}`)
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching goal data:", error)
     return NextResponse.json(
       { error: "Failed to fetch goal data" },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

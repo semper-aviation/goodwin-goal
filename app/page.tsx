@@ -19,6 +19,7 @@ import { GoodwinHeader } from "./components/GoodwinHeader"
 import { MtdAverageCard } from "./dashboard/MtdAverageCard"
 import { DAILY_TARGET, YEAR_TARGET } from "./utils/functions"
 import { MobileDashboard } from "./dashboard/MobileDashboard"
+import { PreviousMonthsChart } from "./dashboard/PreviousMonthsChart"
 
 const GoalsDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardSnapshot>(initialSnapshot)
@@ -300,6 +301,9 @@ const GoalsDashboard: React.FC = () => {
                 </div>
               </div>
 
+              {/* Previous months chart */}
+              <PreviousMonthsChart previousMonths={stats.previousMonths} />
+
               {/* Flight level card */}
               <FlightLevelCard gameLevel={gameLevel} avgLegs={avgLegs} />
 
@@ -330,6 +334,7 @@ const GoalsDashboard: React.FC = () => {
                 DAILY_TARGET={DAILY_TARGET}
                 mtdPercent={mtdPercent}
                 onTrackMTD={onTrackMTD}
+                previousMonths={stats.previousMonths}
               />
             </div>
           </>
