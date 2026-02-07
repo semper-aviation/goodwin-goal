@@ -22,6 +22,14 @@ export type PreviousMonth = {
   avgLegsPerDay: number
 }
 
+export type PreviousMonthCreated = {
+  month: string
+  monthNumber: number
+  createdLegs: number
+  daysInMonth: number
+  avgLegsPerDay: number
+}
+
 export type DashboardSnapshot = {
   scheduledLegs: number
   recentlyCompletedLegs: number
@@ -33,6 +41,7 @@ export type DashboardSnapshot = {
   projectedMonthEnd: ProjectedMonthEnd | null
   upcoming: UpcomingDay[]
   previousMonths: PreviousMonth[] | null
+  previousMonthsCreated: PreviousMonthCreated[] | null
 }
 
 export type GameLevel = {
@@ -54,6 +63,7 @@ export const initialSnapshot: DashboardSnapshot = {
   projectedMonthEnd: null,
   upcoming: [],
   previousMonths: null,
+  previousMonthsCreated: null,
 }
 
 export const sampleData: DashboardSnapshot = {
@@ -110,6 +120,31 @@ export const sampleData: DashboardSnapshot = {
   ],
   previousMonths: [
     { month: "January", monthNumber: 1, completedLegs: 420, daysInMonth: 31, avgLegsPerDay: 13.55 },
+    { month: "February", monthNumber: 2, completedLegs: 350, daysInMonth: 28, avgLegsPerDay: 12.5 },
+    { month: "March", monthNumber: 3, completedLegs: 465, daysInMonth: 31, avgLegsPerDay: 15.0 },
+    { month: "April", monthNumber: 4, completedLegs: 378, daysInMonth: 30, avgLegsPerDay: 12.6 },
+    { month: "May", monthNumber: 5, completedLegs: 410, daysInMonth: 31, avgLegsPerDay: 13.23 },
+    { month: "June", monthNumber: 6, completedLegs: 396, daysInMonth: 30, avgLegsPerDay: 13.2 },
+    { month: "July", monthNumber: 7, completedLegs: 450, daysInMonth: 31, avgLegsPerDay: 14.52 },
+    { month: "August", monthNumber: 8, completedLegs: 372, daysInMonth: 31, avgLegsPerDay: 12.0 },
+    { month: "September", monthNumber: 9, completedLegs: 405, daysInMonth: 30, avgLegsPerDay: 13.5 },
+    { month: "October", monthNumber: 10, completedLegs: 434, daysInMonth: 31, avgLegsPerDay: 14.0 },
+    { month: "November", monthNumber: 11, completedLegs: 360, daysInMonth: 30, avgLegsPerDay: 12.0 },
+    { month: "December", monthNumber: 12, completedLegs: 480, daysInMonth: 31, avgLegsPerDay: 15.48 },
+  ],
+  previousMonthsCreated: [
+    { month: "January", monthNumber: 1, createdLegs: 390, daysInMonth: 31, avgLegsPerDay: 12.58 },
+    { month: "February", monthNumber: 2, createdLegs: 310, daysInMonth: 28, avgLegsPerDay: 11.07 },
+    { month: "March", monthNumber: 3, createdLegs: 440, daysInMonth: 31, avgLegsPerDay: 14.19 },
+    { month: "April", monthNumber: 4, createdLegs: 355, daysInMonth: 30, avgLegsPerDay: 11.83 },
+    { month: "May", monthNumber: 5, createdLegs: 395, daysInMonth: 31, avgLegsPerDay: 12.74 },
+    { month: "June", monthNumber: 6, createdLegs: 410, daysInMonth: 30, avgLegsPerDay: 13.67 },
+    { month: "July", monthNumber: 7, createdLegs: 425, daysInMonth: 31, avgLegsPerDay: 13.71 },
+    { month: "August", monthNumber: 8, createdLegs: 340, daysInMonth: 31, avgLegsPerDay: 10.97 },
+    { month: "September", monthNumber: 9, createdLegs: 388, daysInMonth: 30, avgLegsPerDay: 12.93 },
+    { month: "October", monthNumber: 10, createdLegs: 415, daysInMonth: 31, avgLegsPerDay: 13.39 },
+    { month: "November", monthNumber: 11, createdLegs: 345, daysInMonth: 30, avgLegsPerDay: 11.5 },
+    { month: "December", monthNumber: 12, createdLegs: 460, daysInMonth: 31, avgLegsPerDay: 14.84 },
   ],
 }
 

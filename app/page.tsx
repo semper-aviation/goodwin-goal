@@ -44,7 +44,9 @@ const GoalsDashboard: React.FC = () => {
       try {
         // Get user's timezone
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-        const response = await fetch(`/api/goal?timezone=${encodeURIComponent(timezone)}`)
+        const response = await fetch(
+          `/api/goal?timezone=${encodeURIComponent(timezone)}`,
+        )
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
@@ -52,7 +54,10 @@ const GoalsDashboard: React.FC = () => {
 
         // Check if recently completed legs increased for confetti (skip on initial load)
         setStats((prev) => {
-          if (!isInitialLoad.current && data.recentlyCompletedLegs > prev.recentlyCompletedLegs) {
+          if (
+            !isInitialLoad.current &&
+            data.recentlyCompletedLegs > prev.recentlyCompletedLegs
+          ) {
             setJustIncreasedToday(true)
           }
           isInitialLoad.current = false
@@ -127,17 +132,17 @@ const GoalsDashboard: React.FC = () => {
 
   const avgLegs = useMemo(
     () => (stats.daysElapsed > 0 ? stats.ytdLegs / stats.daysElapsed : 0),
-    [stats.ytdLegs, stats.daysElapsed]
+    [stats.ytdLegs, stats.daysElapsed],
   )
 
   const todayGoalPercent = useMemo(
     () => Math.min((stats.recentlyCompletedLegs / DAILY_TARGET) * 100, 120),
-    [stats.recentlyCompletedLegs]
+    [stats.recentlyCompletedLegs],
   )
 
   const annualPercent = useMemo(
     () => Math.min((stats.ytdLegs / YEAR_TARGET) * 100, 120),
-    [stats.ytdLegs]
+    [stats.ytdLegs],
   )
 
   // Days in current month
@@ -152,13 +157,13 @@ const GoalsDashboard: React.FC = () => {
   // MTD average legs / day
   const avgLegsMTD = useMemo(
     () => (stats.daysElapsedMTD > 0 ? stats.mtdLegs / stats.daysElapsedMTD : 0),
-    [stats.mtdLegs, stats.daysElapsedMTD]
+    [stats.mtdLegs, stats.daysElapsedMTD],
   )
 
   // MTD progress vs month target
   const mtdPercent = useMemo(
     () => Math.min((stats.mtdLegs / MONTH_TARGET) * 100, 120),
-    [stats.mtdLegs, MONTH_TARGET]
+    [stats.mtdLegs, MONTH_TARGET],
   )
 
   const onTrackMTD = avgLegsMTD >= DAILY_TARGET
@@ -187,13 +192,14 @@ const GoalsDashboard: React.FC = () => {
             className={`flex justify-end ${isPresentationMode ? "-mb-2" : ""}`}
           >
             <span className="text-xs text-[var(--gw-primary-dark)]/60">
-              As of: {lastRefreshed.toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                timeZoneName: 'short'
+              As of:{" "}
+              {lastRefreshed.toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                timeZoneName: "short",
               })}
             </span>
           </div>
@@ -302,7 +308,10 @@ const GoalsDashboard: React.FC = () => {
               </div>
 
               {/* Previous months chart */}
-              <PreviousMonthsChart previousMonths={stats.previousMonths} />
+              <PreviousMonthsChart
+                previousMonths={stats.previousMonths}
+                previousMonthsCreated={stats.previousMonthsCreated}
+              />
 
               {/* Flight level card */}
               <FlightLevelCard gameLevel={gameLevel} avgLegs={avgLegs} />
@@ -335,6 +344,7 @@ const GoalsDashboard: React.FC = () => {
                 mtdPercent={mtdPercent}
                 onTrackMTD={onTrackMTD}
                 previousMonths={stats.previousMonths}
+                previousMonthsCreated={stats.previousMonthsCreated}
               />
             </div>
           </>
@@ -357,7 +367,7 @@ function getDayTiming(now: Date) {
     now.getDate(),
     0,
     0,
-    0
+    0,
   )
   const end = new Date(
     now.getFullYear(),
@@ -365,7 +375,7 @@ function getDayTiming(now: Date) {
     now.getDate(),
     23,
     59,
-    59
+    59,
   )
 
   const totalMs = end.getTime() - start.getTime()
